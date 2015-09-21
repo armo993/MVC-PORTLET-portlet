@@ -28,7 +28,7 @@
 <h1>Google Analytics</h1>
     
 <script>
-
+	var continuar1=true;
   // Replace with your client ID from the developer console.
   var CLIENT_ID = '755854461794-c95jqb4lqquhggb1sf7o35jqlc6s15h2.apps.googleusercontent.com';
 
@@ -164,17 +164,17 @@ function handleProfiles(response) {
     
 
 
-function queryCoreReportingApi() {
+function queryCoreReportingApi(pID,finicio,ffinal) {
   
   //para recibir el profile id por el text field
   debugger;
-  var pID=document.getElementById("<portlet:namespace/>profileId").value;
-  var finicio=document.getElementById("<portlet:namespace/>finicio").value;
-  var ffinal=document.getElementById("<portlet:namespace/>ffinal").value;
+  //var pID=document.getElementById("<portlet:namespace/>profileId").value;
+  //var finicio=document.getElementById("<portlet:namespace/>finicio").value;
+  //var ffinal=document.getElementById("<portlet:namespace/>ffinal").value;
   debugger;
   //Sistemas Operativos
   gapi.client.analytics.data.ga.get({
-    'ids': 'ga:105938628',//+ pID,
+    'ids': 'ga:'+ pID,
     'start-date': finicio,
     'end-date': ffinal,
     'metrics': 'ga:sessions',
@@ -187,8 +187,9 @@ function queryCoreReportingApi() {
     document.getElementById('query-output').value = formattedJson;
     var sessions = res.totalsForAllResults['ga:sessions'];
     var SOS = res.rows;
-    document.getElementById('<portlet:namespace/>sessions').value = sessions;
-    document.getElementById('<portlet:namespace/>sos').value = SOS;
+    document.getElementById('<portlet:namespace/>sessions').value = document.getElementById('<portlet:namespace/>sessions').value+"/"+sessions;
+    document.getElementById('<portlet:namespace/>sos').value = document.getElementById('<portlet:namespace/>sos').value+"/"+SOS;
+    continuar1=false;
   })
   .then(null, function(err) {
       // Log any errors.
@@ -197,7 +198,7 @@ function queryCoreReportingApi() {
   
 //Paises
   gapi.client.analytics.data.ga.get({
-    'ids': 'ga:105938628',//+ pID,
+    'ids': 'ga:'+ pID,
     'start-date': finicio,
     'end-date': ffinal,
     'metrics': 'ga:sessions',
@@ -208,7 +209,7 @@ function queryCoreReportingApi() {
     var formattedJson = JSON.stringify(response.result, null, 2);
     var res=JSON.parse(formattedJson);
     var paises = res.rows;
-    document.getElementById('<portlet:namespace/>country').value = paises;
+    document.getElementById('<portlet:namespace/>country').value = document.getElementById('<portlet:namespace/>country').value+"/"+paises;
   })
   .then(null, function(err) {
       // Log any errors.
@@ -216,8 +217,8 @@ function queryCoreReportingApi() {
   });
   
 //Ciudades
-  gapi.client.analytics.data.ga.get({
-    'ids': 'ga:105938628',//+ pID,
+ /** gapi.client.analytics.data.ga.get({
+    'ids': 'ga:'+ pID,
     'start-date': finicio,
     'end-date': ffinal,
     'metrics': 'ga:sessions',
@@ -228,15 +229,15 @@ function queryCoreReportingApi() {
     var formattedJson = JSON.stringify(response.result, null, 2);
     var res=JSON.parse(formattedJson);
     var ciudades = res.rows;
-    document.getElementById('<portlet:namespace/>city').value = ciudades;
+    document.getElementById('<portlet:namespace/>city').value = document.getElementById('<portlet:namespace/>city').value+"/"+ciudades;
   })
   .then(null, function(err) {
       // Log any errors.
       console.log(err);
-  });
+  }); */
 //Browser
   gapi.client.analytics.data.ga.get({
-    'ids': 'ga:105938628',//+ pID,
+    'ids': 'ga:'+pID,
     'start-date': finicio,
     'end-date': ffinal,
     'metrics': 'ga:sessions',
@@ -247,7 +248,7 @@ function queryCoreReportingApi() {
     var formattedJson = JSON.stringify(response.result, null, 2);
     var res=JSON.parse(formattedJson);
     var browser = res.rows;
-    document.getElementById('<portlet:namespace/>browser').value = browser;
+    document.getElementById('<portlet:namespace/>browser').value = document.getElementById('<portlet:namespace/>browser').value+"/"+browser;
   })
   .then(null, function(err) {
       // Log any errors.
@@ -275,12 +276,29 @@ function queryCoreReportingApi() {
   
   
   
-	function beforeSubmit(){
+	function beforeSubmit(PID, email){
 		debugger;
-		queryCoreReportingApi();
+		queryCoreReportingApi(PID);
+		document.getElementById('<portlet:namespace/>txtemail').value = email;
 		debugger;
-		setTimeout(function(){document.getElementById("analyticsForm").submit();}, 2000);
-			//after();
+		//while(continuar1){}
+			
+		
+		//document.getElementById("analyticsForm").submit();
+		setTimeout(function(){document.getElementById("analyticsForm").submit();}, 3000);
+		//after();
+	}
+	function beforeSubmit2(PID, email, finicio, ffinal, paginaWeb){
+		debugger;
+		queryCoreReportingApi(PID, finicio, ffinal);
+		document.getElementById('<portlet:namespace/>txtemail').value = document.getElementById('<portlet:namespace/>txtemail').value+","+email;
+		debugger;
+		//while(continuar1){}
+			
+		
+		//document.getElementById("analyticsForm").submit();
+		//setTimeout(function(){document.getElementById("analyticsForm").submit();}, 2000);
+		//after();
 	}
 	function after(){
 		debugger;
@@ -292,7 +310,28 @@ function queryCoreReportingApi() {
 		}
 		
 	}
-  
+	
+	
+	function automatico(){
+		debugger;
+		<% 
+        Connection connection = DriverManager.getConnection(
+            "jdbc:mysql://localhost/DBLiferay", "root", "1234");
+
+        Statement statement = connection.createStatement() ;
+        ResultSet rs = 
+            statement.executeQuery("select * from cliente") ; 
+        
+        while (rs.next()){ %>
+        	
+        	beforeSubmit2( "<%=rs.getString(8)%>" , "<%= rs.getString(3) %>", document.getElementById('<portlet:namespace/>finicio').value, document.getElementById('<portlet:namespace/>ffinal').value, <%= %> );
+        	console.log('<%=rs.getString(8)%>');
+        <% } %>
+        
+
+		setTimeout(function(){document.getElementById("analyticsForm").submit();}, 3000);
+    
+	}
  
   
   
@@ -302,12 +341,12 @@ function queryCoreReportingApi() {
 
 
 <% 
-            Connection connection = DriverManager.getConnection(
+            Connection connection2 = DriverManager.getConnection(
                 "jdbc:mysql://localhost/DBLiferay", "root", "1234");
 
-            Statement statement = connection.createStatement() ;
-            ResultSet resultset = 
-                statement.executeQuery("select * from cliente") ; 
+            Statement statement2 = connection2.createStatement() ;
+            ResultSet rs2 = 
+                statement2.executeQuery("select * from cliente") ; 
         %>
 
 
@@ -317,8 +356,8 @@ function queryCoreReportingApi() {
 			<label for="profileId">Profile Id</label> 
 			
 			<select class="form-control" id="<portlet:namespace/>profileId" name="<portlet:namespace/>profileId">
-			  <% while(resultset.next()){ %>
-			  <option value="<%= resultset.getString(7) %>"> <%= resultset.getString(7) %> </option>
+			  <% while(rs2.next()){ %>
+			  <option value="<%=rs2.getString(8)%>"><%=rs2.getString(8)%></option>
 			  <% } %>
 			</select>
 			
@@ -342,12 +381,14 @@ function queryCoreReportingApi() {
 			<textarea cols="80" rows="20" id="query-output"></textarea>
 		</div>
 		<div>
-			<input type="hidden" class="form-control" id="<portlet:namespace/>sessions" name="<portlet:namespace/>sessions">
-			<input type="hidden" class="form-control" id="<portlet:namespace/>country" name="<portlet:namespace/>country">
-			<input type="hidden" class="form-control" id="<portlet:namespace/>city" name="<portlet:namespace/>city">
-			<input type="hidden" class="form-control" id="<portlet:namespace/>browser" name="<portlet:namespace/>browser">
-			<input type="hidden" class="form-control" id="<portlet:namespace/>sos" name="<portlet:namespace/>sos">
+			<input type="text" class="form-control" id="<portlet:namespace/>sessions" name="<portlet:namespace/>sessions">
+			<input type="text" class="form-control" id="<portlet:namespace/>country" name="<portlet:namespace/>country">
+			<input type="text" class="form-control" id="<portlet:namespace/>city" name="<portlet:namespace/>city">
+			<input type="text" class="form-control" id="<portlet:namespace/>browser" name="<portlet:namespace/>browser">
+			<input type="text" class="form-control" id="<portlet:namespace/>sos" name="<portlet:namespace/>sos">
 		</div>
+		<button type="button" name="btnAutomatico" id="btnAutomatico" onclick="automatico()"> Enviar a todos </button>
+		
 	</form>
 </div>
 

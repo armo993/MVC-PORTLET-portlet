@@ -101,7 +101,16 @@ public class Analytics extends MVCPortlet {
 			res=res+aux[i]+": "+aux[i+1]+"\n";
 		}
 		return res;
-	}	
+	}
+	
+	public String[] separarDirecciones(String arg){
+		//String [] aux= arg.split(",");	
+		return arg.split(",");
+	}
+	public String[] separarAtributos(String arg){
+		//String [] aux= arg.split(",");	
+		return arg.split("/");
+	}
 		
 	public void addAnalytic(ActionRequest actionRequest, ActionResponse actionResponse){
 		String email = ParamUtil.getString(actionRequest, "txtemail");
@@ -111,12 +120,68 @@ public class Analytics extends MVCPortlet {
 		String ffinal = ParamUtil.getString(actionRequest, "ffinal");
 		String sessions = ParamUtil.getString(actionRequest, "sessions");
 		String country = ParamUtil.getString(actionRequest, "country");
-		String city = ParamUtil.getString(actionRequest, "city");
+		//String city = ParamUtil.getString(actionRequest, "city");
 		String browser = ParamUtil.getString(actionRequest, "browser");
 		String sos = ParamUtil.getString(actionRequest, "sos");
 		System.out.println("sesiones"+ sessions);
 		
-		Reporte.createReport(sessions, darFormato(country), darFormato(city), darFormato(browser),darFormato(sos),finicio,ffinal);
+		String[] direcciones = separarDirecciones(email);
+		String[] inicios=separarAtributos(finicio);
+		String[] finales=separarAtributos(ffinal);
+		String[] sesiones=separarAtributos(sessions);
+		String[] paises=separarAtributos(country);
+		//String[] ciudades=separarAtributos(city);
+		String[] navegadores=separarAtributos(browser);
+		String[] soss=separarAtributos(sos);
+		
+		
+		System.out.println(inicios);
+		for(int i=1;i<direcciones.length;i++){
+			System.out.println("paises"+i+": "+paises[i]);
+			//System.out.println("ciudades"+i+": "+ciudades[i]);
+			System.out.println("navegadores"+i+": "+navegadores[i]);
+			System.out.println("sos"+i+": "+soss[i]);
+			System.out.println("sesiones"+i+": "+sesiones[i]);
+			//System.out.println("Inicio " + i +": "+inicios[i]);
+			
+			Reporte.createReport(sesiones[i], darFormato(paises[i]), ""/*darFormato(ciudades[1])*/, darFormato(navegadores[i]),darFormato(soss[i]),finicio,ffinal);
+			//Reporte.showViewer();
+			Reporte.exportToPDF();
+			
+			
+				//String id = ParamUtil.getString(actionRequest, "id");
+			 try {
+				//String email= ParamUtil.getString(actionRequest, "txtemail");
+				//System.out.print(email);
+				File adjunto = new  File("C:\\Users\\AndresR\\Desktop\\a\\reporte.pdf");	
+				InternetAddress from;
+				InternetAddress to;
+				//Reporte r = new Reporte();
+				//Reporte.createReport();
+				
+				
+				from = new InternetAddress("arodriguez@imagineercx.com");
+				to = new InternetAddress(direcciones[i]);
+				MailMessage mensaje= new MailMessage(from,to, "pruebas", "texto pruebas",true);
+				mensaje.addFileAttachment(adjunto);
+				MailEngine.send(mensaje);
+			
+			 
+			 } catch (AddressException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "se desmadro en el primer catch: "+e.getMessage());
+			}
+				//MailMessage mensaje2= new MailMessage
+			catch (MailEngineException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "se desmadro en el segundo catch: "+e.getMessage());
+			}
+			
+			
+		}
+		/*Reporte.createReport(sessions, darFormato(country), darFormato(city), darFormato(browser),darFormato(sos),finicio,ffinal);
 		//Reporte.showViewer();
 		Reporte.exportToPDF();
 		
@@ -134,9 +199,9 @@ public class Analytics extends MVCPortlet {
 			
 			from = new InternetAddress("arodriguez@imagineercx.com");
 			to = new InternetAddress(email);
-			MailMessage mensaje= new MailMessage(from,to, "subjecasdasdasdat", "mi primer email",true);
+			MailMessage mensaje= new MailMessage(from,to, "pruebas", "texto pruebas",true);
 			mensaje.addFileAttachment(adjunto);
-			//MailEngine.send(mensaje);
+			MailEngine.send(mensaje);
 		
 		 
 		 } catch (AddressException e) {
@@ -145,7 +210,7 @@ public class Analytics extends MVCPortlet {
 			JOptionPane.showMessageDialog(null, "se desmadro en el primer catch: "+e.getMessage());
 		}
 			//MailMessage mensaje2= new MailMessage
-		/*catch (MailEngineException e) {
+		catch (MailEngineException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "se desmadro en el segundo catch: "+e.getMessage());
